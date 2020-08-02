@@ -12,7 +12,6 @@ var connection = mysql.createConnection({
 
 connection.connect(function (err) {
   if (err) throw err;
-  // console.log("connected as id " + connection.threadId)
 });
 
 function start() {
@@ -60,22 +59,17 @@ function start() {
       }
     })
 }
-
 start();
 
 function viewAllEmployees() {
-  connection.query("SELECT*FROM employee;", function(err, results){
-    console.table(results)
-    // results.forEach((results, index) => {
-      // const roleId = results.role_id;
-      // connection.query('SELECT title FROM role WHERE id=' + roleId, function()
-      //   })
+  connection.query("SELECT * FROM employee", function(err, results){
+    if (err) throw err;
+    console.table('\n',results)
     })
     start()
-};
+  };
 
 function addEmployee() {
-
   connection.query("SELECT id, title FROM role;", function(err,res){
     if (err) throw err;
     console.log(res)
@@ -85,7 +79,6 @@ function addEmployee() {
        value : role.id
      }
     })
-
     inquirer.prompt([
       {
         name: "firstName",
@@ -124,20 +117,67 @@ function addEmployee() {
 
 
 
-  function   viewDepartments() {
-
-  };
-  function addDepartment() {
-
-  };
-  function viewRoles() {
-
-  };
-  function addRole() {
-
-  };
-  function updateRole() {
-
-  };
-
+  
 }
+function   viewDepartments() {
+  connection.query("SELECT id, name FROM department;", (err, res)=>{
+    if(err)throw err;
+    start()
+    console.table('\n',res);
+})
+
+};
+function addDepartment() {
+  inquirer.prompt([
+    {
+      name: "department",
+      massage: "Enter Department Name:",
+      type: "input",
+    }
+  ]).then(answer => {
+    connection.query("INSERT INTO department (name) VALUES (?)",
+      answer.department,
+      function (err) {
+        if (err) throw err;
+        console.log('\n',"New department added ! ")
+        start();
+      });
+  })
+};
+function viewRoles() {
+  connection.query("SELECT * FROM role;",(err, res)=>{
+    if(err)throw err;
+    start()
+    console.table('\n',res);
+})
+};
+function addRole() {
+  inquirer.prompt([
+    {
+      name: "role",
+      massage: "Enter Role:",
+      type: "input",
+    },
+    {
+      name: "salary",
+      massage: "Enter Salary:",
+      type: "input",
+    },
+    {
+      name: "department_id",
+      massage: "Enter Department ID:",
+      type: "input",
+    }
+
+  ]).then(answer => {
+    connection.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)",
+      [answer.role, answer.salary, answer.department_id,],
+      function (err) {
+        if (err) throw err;
+        start();
+      });
+  })
+};
+function updateRole() {
+
+};
