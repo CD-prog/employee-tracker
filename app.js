@@ -24,7 +24,9 @@ function start() {
       choices: [
         "View All Employees",
         "Add Employee",
+        "View Departments",
         "Add Department",
+        "View Roles",
         "Add Role",
         "Update Employee Role",
         "Exit"
@@ -37,8 +39,14 @@ function start() {
         case "Add Employee":
           addEmployee();
           break;
+        case "View Departments":
+          viewDepartments();
+          break;
         case "Add Department":
           addDepartment();
+          break;
+        case "View Roles":
+          viewRoles();
           break;
         case "Add Role":
           addRole();
@@ -58,16 +66,13 @@ start();
 function viewAllEmployees() {
   connection.query("SELECT*FROM employee;", function(err, results){
     console.table(results)
-    start()
     // results.forEach((results, index) => {
-    // const roleId = results.role_id;
-    // connection.query('SELECT title FROM role WHERE id=' + roleId, function()
-    //   })
+      // const roleId = results.role_id;
+      // connection.query('SELECT title FROM role WHERE id=' + roleId, function()
+      //   })
     })
-  
-
+    start()
 };
-
 
 function addEmployee() {
 
@@ -119,7 +124,13 @@ function addEmployee() {
 
 
 
+  function   viewDepartments() {
+
+  };
   function addDepartment() {
+
+  };
+  function viewRoles() {
 
   };
   function addRole() {
