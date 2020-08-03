@@ -60,24 +60,46 @@ function start() {
     })
 }
 start();
+getManager();
+getDepartment();
 
-function viewAllEmployees() {
-  connection.query("SELECT * FROM employee", function(err, results){
+managerList = [];
+function getManager() {
+  connection.query('SELECT*FROM employee', (err, results) => {
     if (err) throw err;
-    console.table('\n',results)
-    })
+    for (let i = 0; i < results.length; i++)
+      managerList.push(results[i].id + ' ' + results[i].first_name + ' ' + results[i].last_name)
+  })
+}
+departmentList =[];
+function getDepartment() {
+  connection.query('SELECT*FROM department', (err, results) => {
+    if (err) throw err;
+    for (let i = 0; i < results.length; i++)
+      departmentList.push(results[i].id + ' ' + results[i].name)
+  })
+}
+function viewAllEmployees() {
+  connection.query(
+    `SELECT employee.id ID, employee.first_name FirstName, employee.last_name LastName, department.name Department, role.title Role, role.salary Salary, employee.manager_id Manager
+    FROM employee 
+    LEFT JOIN role on (employee.role_id = role.id)
+    LEFT JOIN department on (role.department_id = department.id)
+    LEFT JOIN employee manager on (employee.manager_id = manager.id)
+    ORDER BY employee.id;`,
+    (err, results) => {
+      if (err) throw err;
+      console.table('\n',results)
     start()
-  };
-
+  })}
 function addEmployee() {
   connection.query("SELECT id, title FROM role;", function(err,res){
     if (err) throw err;
-    console.log(res)
     const choices = res.map(function(role){
-     return {
-       name : role.title,
-       value : role.id
-     }
+      return {
+        name : role.title,
+        value : role.id
+      }
     })
     inquirer.prompt([
       {
@@ -96,28 +118,30 @@ function addEmployee() {
         message: "What is the employee's role?",
         choices
       },
+      {
+        name: "managers",
+        type: "list",
+        message: "Who is the employee's manager?",
+        choices : managerList
+      },
     ]).then(function (answer) {
       connection.query(
         "INSERT INTO employee SET ?" ,
         {
           first_name : answer.firstName,
           last_name : answer.lastName,
-          role_id : answer.role
+          role_id : answer.role,
+          manager_id : answer.managers.match(/\d+/g),
         },
          function (err) {
           if (err) throw err;
-          console.log("\nYour employee was created successfully!");
+          console.log("\nYour employee was created successfully!",'\n');
           start();
         }
         )
     });
     
   })
-
-
-
-
-  
 }
 function   viewDepartments() {
   connection.query("SELECT id, name FROM department;", (err, res)=>{
@@ -152,6 +176,7 @@ function viewRoles() {
 })
 };
 function addRole() {
+  getDepartment();
   inquirer.prompt([
     {
       name: "role",
@@ -165,13 +190,14 @@ function addRole() {
     },
     {
       name: "department_id",
-      massage: "Enter Department ID:",
-      type: "input",
+      massage: "Choose Department:",
+      type: "list",
+      choices: departmentList
     }
 
   ]).then(answer => {
     connection.query("INSERT INTO role (title, salary, department_id) VALUES (?, ?, ?)",
-      [answer.role, answer.salary, answer.department_id,],
+      [answer.role, answer.salary, answer.department_id.match(/\d+/g)],
       function (err) {
         if (err) throw err;
         start();
