@@ -14,6 +14,11 @@ connection.connect(function (err) {
   if (err) throw err;
 });
 
+departmentList = [];
+managerList = ['N/A',];
+employeeList = []
+newRoleList = []
+
 function start() {
   inquirer
     .prompt({
@@ -61,32 +66,20 @@ function start() {
 }
 start();
 
-
-departmentList = [];
-managerList = [];
-
-employeeList = []
-newRoleList = []
-
 function newRole() {
   connection.query('SELECT*FROM role', (err, results) => {
     if (err) throw err;
     for (let i = 0; i < results.length; i++)
       newRoleList.push(results[i].id + ' ' + results[i].title)
-    // console.log(newRoleList)
   })
 }
-newRole()
-
 function getRole() {
   connection.query('SELECT*FROM employee', (err, results) => {
     if (err) throw err;
     for (let i = 0; i < results.length; i++)
-      employeeList.push(results[i].id + results[i].first_name + ' ' + results[i].last_name)
+      employeeList.push(results[i].id + ' ' + results[i].first_name + ' ' + results[i].last_name)
   })
 }
-getRole();
-
 function getManager() {
   connection.query('SELECT*FROM employee', (err, results) => {
     if (err) throw err;
@@ -103,7 +96,7 @@ function getDepartment() {
 };
 function viewAllEmployees() {
   connection.query(
-    `SELECT employee.id ID, employee.first_name FirstName, employee.last_name LastName, department.name DEPARTMENT, role.title ROLE, role.salary SALARY, employee.manager_id MANAGER
+    `SELECT employee.id ID, employee.first_name FirstName, employee.last_name LastName, department.name DEPARTMENT, role.title ROLE, role.salary SALARY, concat(manager.first_name,' ',manager.last_name) MANAGER
     FROM employee 
     LEFT JOIN role on (employee.role_id = role.id)
     LEFT JOIN department on (role.department_id = department.id)
@@ -229,13 +222,9 @@ function addRole() {
       });
   })
 };
-
-
-
-
+getRole()
+newRole()
 function updateRole() {
-  getRole()
-  newRole()
   inquirer.prompt([
     {
       name: "modifyRole",
