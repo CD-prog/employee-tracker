@@ -6,6 +6,8 @@
 ## Description
 Command-line application that allows users to manage a company's employees using Node, Inquirer and MySQL
 
+<img src="employee-tracker.png">
+
 ## Installation
 Run npm install in terminal and schema.sql in MySQL
 
