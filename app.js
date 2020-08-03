@@ -19,7 +19,7 @@ function start() {
     .prompt({
       name: "action",
       type: "list",
-      message: "What would you like to do?",
+      message: "What would you like to do?\n",
       choices: [
         "View All Employees",
         "Add Employee",
@@ -60,28 +60,26 @@ function start() {
     })
 }
 start();
-getManager();
-getDepartment();
-
+departmentList = [];
 managerList = [];
+
 function getManager() {
   connection.query('SELECT*FROM employee', (err, results) => {
     if (err) throw err;
     for (let i = 0; i < results.length; i++)
       managerList.push(results[i].id + ' ' + results[i].first_name + ' ' + results[i].last_name)
   })
-}
-departmentList =[];
+};
 function getDepartment() {
   connection.query('SELECT*FROM department', (err, results) => {
     if (err) throw err;
     for (let i = 0; i < results.length; i++)
       departmentList.push(results[i].id + ' ' + results[i].name)
   })
-}
+};
 function viewAllEmployees() {
   connection.query(
-    `SELECT employee.id ID, employee.first_name FirstName, employee.last_name LastName, department.name Department, role.title Role, role.salary Salary, employee.manager_id Manager
+    `SELECT employee.id ID, employee.first_name FirstName, employee.last_name LastName, department.name DEPARTMENT, role.title ROLE, role.salary SALARY, employee.manager_id MANAGER
     FROM employee 
     LEFT JOIN role on (employee.role_id = role.id)
     LEFT JOIN department on (role.department_id = department.id)
@@ -89,16 +87,18 @@ function viewAllEmployees() {
     ORDER BY employee.id;`,
     (err, results) => {
       if (err) throw err;
-      console.table('\n',results)
-    start()
-  })}
+      console.table('\n', results)
+      start()
+    })
+};
 function addEmployee() {
-  connection.query("SELECT id, title FROM role;", function(err,res){
+  getManager();
+  connection.query("SELECT id, title FROM role;", function (err, res) {
     if (err) throw err;
-    const choices = res.map(function(role){
+    const choices = res.map(function (role) {
       return {
-        name : role.title,
-        value : role.id
+        name: role.title,
+        value: role.id
       }
     })
     inquirer.prompt([
@@ -122,33 +122,33 @@ function addEmployee() {
         name: "managers",
         type: "list",
         message: "Who is the employee's manager?",
-        choices : managerList
+        choices: managerList
       },
     ]).then(function (answer) {
       connection.query(
-        "INSERT INTO employee SET ?" ,
+        "INSERT INTO employee SET ?",
         {
-          first_name : answer.firstName,
-          last_name : answer.lastName,
-          role_id : answer.role,
-          manager_id : answer.managers.match(/\d+/g),
+          first_name: answer.firstName,
+          last_name: answer.lastName,
+          role_id: answer.role,
+          manager_id: answer.managers.match(/\d+/g),
         },
-         function (err) {
+        function (err) {
           if (err) throw err;
-          console.log("\nYour employee was created successfully!",'\n');
+          console.log("\nEmployee was added successfully!", '\n');
           start();
         }
-        )
+      )
     });
-    
+
   })
-}
-function   viewDepartments() {
-  connection.query("SELECT id, name FROM department;", (err, res)=>{
-    if(err)throw err;
+};
+function viewDepartments() {
+  connection.query("SELECT department.id ID, department.name DEPARTMENT FROM department;", (err, res) => {
+    if (err) throw err;
+    console.table('\n', res);
     start()
-    console.table('\n',res);
-})
+  })
 
 };
 function addDepartment() {
@@ -163,17 +163,17 @@ function addDepartment() {
       answer.department,
       function (err) {
         if (err) throw err;
-        console.log('\n',"New department added ! ")
+        console.log('\n', "New department added successfully ! ", '\n')
         start();
       });
   })
 };
 function viewRoles() {
-  connection.query("SELECT * FROM role;",(err, res)=>{
-    if(err)throw err;
+  connection.query("SELECT role.id ID, role.title ROLE, role.salary SALARY, role.department_id DEPARTMENT_ID FROM role;", (err, res) => {
+    if (err) throw err;
+    console.table('\n', res);
     start()
-    console.table('\n',res);
-})
+  })
 };
 function addRole() {
   getDepartment();
@@ -200,6 +200,7 @@ function addRole() {
       [answer.role, answer.salary, answer.department_id.match(/\d+/g)],
       function (err) {
         if (err) throw err;
+        console.log('\n', "New role added successfully ! ", '\n')
         start();
       });
   })
