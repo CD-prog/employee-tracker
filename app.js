@@ -223,8 +223,8 @@ function addRole() {
   })
 };
 getRole()
-newRole()
 function updateRole() {
+  newRole()
   inquirer.prompt([
     {
       name: "modifyRole",
@@ -234,7 +234,6 @@ function updateRole() {
     }
   ]).then(function (answer) {
     let roleToModify = parseInt(answer.modifyRole.match(/\d+/g))
-    // console.log(roleToModify)
     inquirer.prompt([
       {
         name: "newRole",
@@ -244,7 +243,6 @@ function updateRole() {
       }
     ]).then(function (answer) {
       let newRoleId = parseInt(answer.newRole.match(/\d+/g))
-      // console.log(newRoleId)
       connection.query(`UPDATE employee SET role_id=${newRoleId} WHERE id=${roleToModify}`,
         function (err) {
           if (err) throw err;
