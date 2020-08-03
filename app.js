@@ -60,8 +60,32 @@ function start() {
     })
 }
 start();
+
+
 departmentList = [];
 managerList = [];
+
+employeeList = []
+newRoleList = []
+
+function newRole() {
+  connection.query('SELECT*FROM role', (err, results) => {
+    if (err) throw err;
+    for (let i = 0; i < results.length; i++)
+      newRoleList.push(results[i].id + ' ' + results[i].title)
+    // console.log(newRoleList)
+  })
+}
+newRole()
+
+function getRole() {
+  connection.query('SELECT*FROM employee', (err, results) => {
+    if (err) throw err;
+    for (let i = 0; i < results.length; i++)
+      employeeList.push(results[i].id + results[i].first_name + ' ' + results[i].last_name)
+  })
+}
+getRole();
 
 function getManager() {
   connection.query('SELECT*FROM employee', (err, results) => {
@@ -205,6 +229,41 @@ function addRole() {
       });
   })
 };
-function updateRole() {
 
+
+
+
+function updateRole() {
+  getRole()
+  newRole()
+  inquirer.prompt([
+    {
+      name: "modifyRole",
+      message: "\nSelect employee who's role you want to modify:\n",
+      type: "list",
+      choices: employeeList,
+    }
+  ]).then(function (answer) {
+    let roleToModify = parseInt(answer.modifyRole.match(/\d+/g))
+    // console.log(roleToModify)
+    inquirer.prompt([
+      {
+        name: "newRole",
+        message: "\nSelect new role:\n",
+        type: "list",
+        choices: newRoleList,
+      }
+    ]).then(function (answer) {
+      let newRoleId = parseInt(answer.newRole.match(/\d+/g))
+      // console.log(newRoleId)
+      connection.query(`UPDATE employee SET role_id=${newRoleId} WHERE id=${roleToModify}`,
+        function (err) {
+          if (err) throw err;
+          console.log('\n', "Role updated successfully ! ", '\n')
+          start();
+        }
+      )
+    })
+  }
+  )
 };
