@@ -224,7 +224,8 @@ function addRole() {
 };
 getRole()
 function updateRole() {
-  newRole()
+newRole()
+
   inquirer.prompt([
     {
       name: "modifyRole",
@@ -247,9 +248,9 @@ function updateRole() {
         function (err) {
           if (err) throw err;
           console.log('\n', "Role updated successfully ! ", '\n')
-          start();
         }
-      )
+        )
+        start();
     })
   }
   )
